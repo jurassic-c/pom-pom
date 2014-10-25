@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=PomPom
+Exec=/usr/bin/python /opt/PomPom/main.py
+Terminal=false
+Type=Application
+Icon=/opt/PomPom/icon.png
+Categories=GNOME;GTK;Utility;Development;
