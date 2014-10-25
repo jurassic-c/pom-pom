@@ -9,8 +9,9 @@ displayed and an alarm sounds. Every 4th Pomodoro, you get a 15 minute break.
 ### Dependencies
 
  - Python 2.7
- - pynotify
- - pygame
+ - python-appindicator
+ - python2-notify2
+ - python-pygame
 
 
 ### Installation
