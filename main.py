@@ -7,8 +7,13 @@ from datetime import datetime, timedelta
 from time import sleep
 import gobject
 import pygame
+import os
 
-a = appindicator.Indicator('pompom_indicator', '/home/coaltown/projects/current/PomPom/icon.png', appindicator.CATEGORY_APPLICATION_STATUS)
+mult = 60
+
+working_dir = os.path.dirname(os.path.realpath(__file__))
+
+a = appindicator.Indicator('pompom_indicator', os.path.join(working_dir, 'icon.png'), appindicator.CATEGORY_APPLICATION_STATUS)
 a.set_status( appindicator.STATUS_ACTIVE )
 a.set_label("00:00")
 m = gtk.Menu()
@@ -31,11 +36,11 @@ current_tomato = {"start": None, "last_pause": None, "mode": "work", "paused": T
 pynotify.init("PomPom")
 pygame.init()
 pygame.mixer.init()
-pygame.mixer.music.load("/home/coaltown/projects/current/PomPom/alarm.mp3")
+pygame.mixer.music.load(os.path.join(working_dir, 'alarm.mp3'))
 
 def start(item):
 	global start_btn_connect
-	a.set_icon('/home/coaltown/projects/current/PomPom/icon-task-running.png')
+	a.set_icon(os.path.join(working_dir, 'icon-task-running.png'))
 	current_tomato["paused"] = False
 	current_tomato["start"] = datetime.now()
 	start_btn.set_label("Stop")
@@ -56,27 +61,29 @@ def update_time():
 		now = datetime.now()
 		delta = now - current_tomato["start"] - current_tomato["pause_offset"]
 		if current_tomato["mode"] == "work":
-			seconds = (25*60)-delta.seconds
+			seconds = (25*mult)-delta.seconds
 			if seconds <= 0:
 				seconds = 0
 				current_tomato["mode"] = "break"
 				current_tomato["start"] = None
 				if (tomatoes+1) % 4:
 					n = pynotify.Notification("PomPom", "Work time is over. Take a break!")
+					pygame.mixer.music.rewind()
 					pygame.mixer.music.play()
 					gobject.timeout_add(3000, stop_alarm)
 					n.show()
 				else:
 					n = pynotify.Notification("PomPom", "Work time is over. Take a nice long break!")
+					pygame.mixer.music.rewind()
 					pygame.mixer.music.play()
 					gobject.timeout_add(3000, stop_alarm)
 					n.show()
-				a.set_icon('/home/coaltown/projects/current/PomPom/icon-break-running.png')
+				a.set_icon(os.path.join(working_dir, 'icon-break-running.png'))
 		elif current_tomato["mode"] == "break":
 			if(tomatoes+1) % 4:
-				seconds = (5*60)-delta.seconds
+				seconds = (5*mult)-delta.seconds
 			else:
-				seconds = (15*60)-delta.seconds
+				seconds = (15*mult)-delta.seconds
 			if seconds <= 0:
 				seconds = 0
 				current_tomato["mode"] = "work"
@@ -84,6 +91,7 @@ def update_time():
 				n = pynotify.Notification("PomPom", "Break is over. Get to work!")
 				n.show()
 				a.set_icon('/home/coaltown/projects/current/PomPom/icon-task-running.png')
+				pygame.mixer.music.rewind()
 				pygame.mixer.music.play()
 				gobject.timeout_add(3000, stop_alarm)
 				tomatoes+= 1
@@ -100,20 +108,20 @@ def pause(item):
 		current_tomato["paused"] = False
 		current_tomato["pause_offset"]+= (datetime.now() - current_tomato["last_pause"])
 		if current_tomato["mode"] == "work":
-			a.set_icon('/home/coaltown/projects/current/PomPom/icon-task-running.png')
+			a.set_icon(os.path.join(working_dir, 'icon-task-running.png'))
 		else:
-			a.set_icon('/home/coaltown/projects/current/PomPom/icon-break-running.png')
+			a.set_icon(os.path.join(working_dir, 'icon-break-running.png'))
 	else:
 		current_tomato["last_pause"] = datetime.now()
 		current_tomato["paused"] = True
 		if current_tomato["mode"] == "work":
-			a.set_icon('/home/coaltown/projects/current/PomPom/icon-task-pause.png')
+			a.set_icon(os.path.join(working_dir, 'icon-task-pause.png'))
 		else:
-			a.set_icon('/home/coaltown/projects/current/PomPom/icon-break-pause.png')
+			a.set_icon(os.path.join(working_dir, 'icon-break-pause.png'))
 
 def stop(item):
 	global start_btn_connect
-	a.set_icon('/home/coaltown/projects/current/PomPom/icon.png')
+	a.set_icon(os.path.join(working_dir, 'icon.png'))
 	start_btn.set_label("Start")
 	start_btn.disconnect(start_btn_connect)
 	start_btn_connect = start_btn.connect('activate', start)
